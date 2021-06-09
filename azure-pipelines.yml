@@ -1,0 +1,84 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+resources:
+- repo: self
+
+variables:
+  major: 0
+  minor: 0
+  majorMinor: ${{variables.major}}.${{variables.minor}}
+
+  ${{ if eq(variables['Build.SourceBranchName'], 'main')}}:
+    patch: $[counter(variables.majorMinor, 0)]
+    branchTag:
+
+  ${{ if ne(variables['Build.SourceBranchName'], 'main')}}:
+    patch: 0
+    branchPatch: $[counter(variables['Build.SourceBranchName'], 0)]
+    branchTag: -${{variables['build.sourcebranchname']}}.$(branchPatch)
+
+  version: $(majorMinor).$(patch)
+  semver: $(majorMinor).$(patch)$(branchTag)
+
+jobs:
+- job: "settings"
+  displayName: "Set build number"
+  steps:
+    - pwsh: |
+        Write-Host "##vso[build.updatebuildnumber]$(semver)"
+
+- job: "publish"
+  displayName: "Publish Module"
+  dependsOn: settings
+  steps:
+    - task: TfxInstaller@3
+      displayName: "Install tfx cli"
+      inputs:
+        version: 'v0.9.x'
+
+    - task: Npm@1
+      displayName: "Install packages"
+      inputs:
+        command: 'install'
+        workingDir: 'task'
+
+    - script: tsc ./task/index.ts
+      displayName: "Compile TypeScript"
+
+    - task: PublishAzureDevOpsExtension@3
+      inputs:
+        connectTo: 'VsTeam'
+        connectedServiceName: 'Visual Studio Marketplace'
+        fileType: 'manifest'
+        rootFolder: '.'
+        extensionVersion: '$(version)'
+        updateTasksVersion: true
+        updateTasksId: true
+        extensionVisibility: 'private'
+        extensionPricing: 'free'
+        shareWith: 'callofthevoid'
+
+- job: "scanning"
+  displayName: "Scanning"
+  dependsOn: settings
+  steps:
+    - task: SonarCloudPrepare@1
+      inputs:
+        SonarCloud: 'SonarCloud'
+        organization: callofthevoid
+        scannerMode: CLI
+        configMode: manual
+        cliProjectKey: 'extension.call-rest-endpoint'
+        projectVersion: '$(Build.BuildNumber)'
+
+    - task: SonarCloudAnalyze@1
+      displayName: 'Run Code Analysis'
+
+    - task: SonarCloudPublish@1
+      displayName: 'Publish Quality Gate Result'

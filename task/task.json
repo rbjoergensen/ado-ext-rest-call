@@ -1,0 +1,78 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
+    "id": "7a3fbeab-c278-458e-94f8-f8cb044d10d9",
+    "name": "call-rest-endpoint",
+    "friendlyName":"Call REST Endpoint",
+    "instanceNameFormat":"Call REST Endpoint",
+    "description":"Sends a request to a REST endpoint",
+    "helpMarkDown": "",
+    "category": "Test",
+    "author":"CallOfTheVoid",
+    "version": {
+        "Major": 0,
+        "Minor": 0,
+        "Patch": 0
+    },
+    "groups":[
+        {
+            "name":"settings",
+            "displayName":"Settings",
+            "isExpanded":true
+        }
+    ],
+    "inputs":[
+        {
+           "name":"endpointUrl",
+           "type":"string",
+           "label":"Endpoint",
+           "defaultValue":"",
+           "required":true,
+           "helpMarkDown":"Enter the full url of the endpoint such as 'https://api.mydomain.com/myservice/health'",
+           "groupName":"settings"
+        },
+        {
+           "name": "method",
+           "type": "pickList",
+           "label": "Method",
+           "defaultValue": "",
+           "required": true,
+           "options": {
+               "get": "GET"
+           },
+           "helpMarkDown": "Select the method type.",
+           "groupName":"settings"
+       },
+       {
+           "name": "allowInsecure",
+           "type": "boolean",
+           "label": "Ignore TLS",
+           "defaultValue": "false",
+           "required": false,
+           "helpMarkDown": "If checked the task will not validate the authenticity of any certificates.",
+           "groupName":"settings"
+       },
+       {
+           "name":"requestBody",
+           "type":"multiLine",
+           "label":"Body",
+           "defaultValue":"",
+           "required":false,
+           "helpMarkDown":"If using the POST method specify the body of the request as JSON",
+           "groupName":"settings"
+        },
+        {
+           "name":"requestHeaders",
+           "type":"string",
+           "label":"Headers",
+           "defaultValue":"",
+           "required":false,
+           "helpMarkDown":"If using the POST method specify the headers as JSON like '{\"authorization\": \"bearer <token>\"}'",
+           "groupName":"settings"
+        }
+     ],
+    "execution": {
+        "Node10": {
+            "target": "index.js"
+        }
+    }
+}
