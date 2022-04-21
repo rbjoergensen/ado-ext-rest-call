@@ -33,7 +33,6 @@ async function run() {
         console.log("Statuscode:", response.status)
         console.log(await response.text())
 
-        // Check if the return statuscode is in the 200 range
         if (response.status >= 300 || response.status < 200)
         {
             console.error('Statuscode not in 200 range -->', response.status);
