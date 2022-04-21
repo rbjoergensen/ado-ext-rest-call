@@ -3,13 +3,11 @@ import tl = require('azure-pipelines-task-lib/task');
 async function run() {
     try
     {
-        // Read variables from extension
         const endpointUrl: string | undefined = tl.getInput('endpointUrl', true);
         const allowInsecureInput: string | undefined = tl.getInput('allowInsecure', true);
         const allowInsecure = (allowInsecureInput === 'true');
         const requestHeaders: string | undefined = tl.getInput('requestHeaders', false);
 
-        // Set env to either trust or untrust bad TLS replies
         if (allowInsecure)
         {
             process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
@@ -26,14 +24,12 @@ async function run() {
             headers = JSON.parse(requestHeaders)
         }
 
-        // Send request and process the response
         const fetch = require("node-fetch");
         const response = await fetch(endpointUrl, {
             method: 'GET',
             headers: headers
         })
-
-        // Log the statuscode and response for easier debugging/verification
+        
         console.log("Statuscode:", response.status)
         console.log(await response.text())
 
