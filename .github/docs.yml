@@ -1,0 +1,6 @@
+navigatorName: Azure Marketplace - Rest call
+category: Azure DevOps
+includeLink: true
+files:
+- file: readme.md
+  prettyName: Readme
